@@ -3,6 +3,7 @@ package com.demo.hibernate.demo;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 
 import com.demo.hibernate.demo.entity.Course;
 import com.demo.hibernate.demo.entity.Instructor;
@@ -22,15 +23,21 @@ public class FetchJoinDemo {
 			session.beginTransaction();
 
 			int theId = 1;
-			Instructor tempInstructor = session.get(Instructor.class, theId);
-
+			Query<Instructor> query = session.createQuery(
+					"select i from Instructor i "
+					+ "JOIN FETCH i.courses "
+					+ "where i.id=:theInstructorId",
+					Instructor.class);
+			query.setParameter("theInstructorId", theId);
+			
+			Instructor tempInstructor = query.getSingleResult();
+			
 			System.out.println("Demo: Instructor: " + tempInstructor);
-			System.out.println("Demo: Courses: " + tempInstructor.getCourses());
 
 			session.getTransaction().commit();
 
 			session.close();
-
+			
 			System.out.println("Demo: Courses: " + tempInstructor.getCourses());
 
 			System.out.println("Done!");
